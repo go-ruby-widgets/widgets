@@ -8,12 +8,35 @@ import (
 	"fmt"
 	"reflect"
 	"sort"
+	"strconv"
 	"strings"
 	"unicode"
 
 	"github.com/go-widgets/painter"
 	"github.com/go-widgets/toolkit"
 )
+
+// parseHexColor parses an "#rrggbb" or "#rrggbbaa" colour (the leading "#" is
+// optional). An empty string yields the zero RGBA — the sentinel the toolkit
+// widgets read as "use the theme colour" — with no error. Any other length or a
+// non-hex digit is an error.
+func parseHexColor(s string) (painter.RGBA, error) {
+	s = strings.TrimPrefix(strings.TrimSpace(s), "#")
+	if s == "" {
+		return painter.RGBA{}, nil
+	}
+	if len(s) != 6 && len(s) != 8 {
+		return painter.RGBA{}, fmt.Errorf("widgets: invalid hex colour %q (want #rrggbb or #rrggbbaa)", s)
+	}
+	n, err := strconv.ParseUint(s, 16, 64)
+	if err != nil {
+		return painter.RGBA{}, fmt.Errorf("widgets: invalid hex colour %q: %w", s, err)
+	}
+	if len(s) == 6 {
+		return painter.RGBA{R: uint8(n >> 16), G: uint8(n >> 8), B: uint8(n), A: 0xFF}, nil
+	}
+	return painter.RGBA{R: uint8(n >> 24), G: uint8(n >> 16), B: uint8(n >> 8), A: uint8(n)}, nil
+}
 
 // Module is the stateful Ruby receiver: the `Widgets` module under rbgo. Unlike
 // the stateless data adapters (opentype, regexp, …) a Module owns a live widget
@@ -162,6 +185,26 @@ func (m *Module) Menu(items []any) int {
 
 // MenuBar constructs an empty horizontal menu bar; attach menus with AddMenu.
 func (m *Module) MenuBar() int { return m.reg(toolkit.NewMenuBar()) }
+
+// Backdrop constructs a decorative full-bounds ground: a solid fill and, when
+// step > 0, a regular grid of 1-unit lines every step units. It paints no
+// children and handles no events — the plain backing a host composites a scene
+// on top of (a desktop wallpaper, a canvas backing sheet, a chart plot area).
+//
+// fill and grid are "#rrggbb" or "#rrggbbaa" hex strings; an empty string
+// selects the theme's Background (fill) or Border (grid) at render time. A
+// malformed colour is an error, reported by Call. step <= 0 draws no grid.
+func (m *Module) Backdrop(fill, grid string, step int) (int, error) {
+	f, err := parseHexColor(fill)
+	if err != nil {
+		return 0, err
+	}
+	g, err := parseHexColor(grid)
+	if err != nil {
+		return 0, err
+	}
+	return m.reg(toolkit.NewBackdrop(f, g, step)), nil
+}
 
 // --- container constructors --------------------------------------------------
 
