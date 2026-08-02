@@ -42,6 +42,12 @@ six 64-bit Go architectures **and `js/wasm`** (the target [wasmdesk](https://git
 `set_text` / `text`, `set_checked` / `checked`, `select(id, idx)`, `set_style`,
 `set_spacing`, and the module-wide `set_theme("light"|"dark")`.
 
+The module-wide `use_opentype_text` (and `use_opentype_text_size(px)`) upgrades
+the toolkit's active font from the built-in 5x7 bitmap to anti-aliased, shaped
+OpenType text (the bundled Atkinson Hyperlegible face). Call it once before the
+first render and every widget — window titles, menus, HUD, desktop, frame
+decorations — repaints against the vector face.
+
 ### Composition
 
 `add_widget(parent, child)`, `add(parent, child, {flex:, size:, region:})`,

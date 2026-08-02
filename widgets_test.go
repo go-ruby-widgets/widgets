@@ -219,6 +219,33 @@ func TestSetTheme(t *testing.T) {
 	}
 }
 
+func TestUseOpentypeText(t *testing.T) {
+	// The toolkit's active font is a process-global; restore the bitmap default
+	// so this test does not perturb the pixel/metric geometry other tests read.
+	defer toolkit.SetFont(nil)
+
+	m := NewModule()
+	if err := m.UseOpentypeText(); err != nil {
+		t.Fatalf("UseOpentypeText: %v", err)
+	}
+	if err := m.UseOpentypeTextSize(20); err != nil {
+		t.Fatalf("UseOpentypeTextSize: %v", err)
+	}
+
+	// Reachable through the reflective surface under the snake_case names the
+	// Ruby binding drives, both directions (Call in, Methods out).
+	if _, err := Call(m, "use_opentype_text"); err != nil {
+		t.Fatalf("Call use_opentype_text: %v", err)
+	}
+	if _, err := Call(m, "use_opentype_text_size", 18); err != nil {
+		t.Fatalf("Call use_opentype_text_size: %v", err)
+	}
+	names := Methods(m)
+	if !sortedContains(names, "use_opentype_text") || !sortedContains(names, "use_opentype_text_size") {
+		t.Errorf("use_opentype_text[_size] missing from %v", names)
+	}
+}
+
 // --- composition -------------------------------------------------------------
 
 func TestAddWidget(t *testing.T) {

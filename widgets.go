@@ -410,6 +410,25 @@ func (m *Module) SetTheme(name string) error {
 	return nil
 }
 
+// UseOpentypeText switches the toolkit's active font from the built-in 5x7
+// bitmap to anti-aliased, shaped OpenType text — the bundled Atkinson
+// Hyperlegible face at the toolkit's default UI size — in a single call. After
+// it, every widget (window titles, menus, HUD, desktop, frame decorations, …)
+// re-lays-out and repaints against the vector face without any further
+// per-widget wiring.
+//
+// Call it once at start-up, before the first render. The active font is a
+// process-global in the toolkit, so this affects every Module. A parse failure
+// (which the bundled face never triggers) is returned and leaves the bitmap
+// default in place.
+func (m *Module) UseOpentypeText() error { return toolkit.UseOpenTypeText() }
+
+// UseOpentypeTextSize is UseOpentypeText at an explicit pixel size — for apps
+// (or high-DPI surfaces) wanting AA text larger or smaller than the toolkit
+// default. The active font is only swapped on success; on a parse error it is
+// left untouched and the error is returned.
+func (m *Module) UseOpentypeTextSize(px int) error { return toolkit.UseOpenTypeTextSize(px) }
+
 // --- composition -------------------------------------------------------------
 
 // AddWidget appends child to a Container, HBox or VBox with the default per-item
