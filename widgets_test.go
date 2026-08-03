@@ -661,6 +661,27 @@ func TestCall(t *testing.T) {
 		t.Fatalf("add with omitted opts: %v", err)
 	}
 
+	// Omitted trailing INTEGER arguments default to 0 rather than erroring
+	// (Ruby's optional-trailing-args ergonomics). backdrop(fill, grid string,
+	// step int) called with grid AND the trailing int step left off defaults
+	// grid to "" and step to 0, still yielding a valid handle.
+	h, err := Call(m, "backdrop", "#112233")
+	if err != nil {
+		t.Fatalf("backdrop with omitted grid+step: %v", err)
+	}
+	if _, ok := h.(int); !ok {
+		t.Fatalf("backdrop handle = %T, want int", h)
+	}
+	// A single trailing int omitted: grid(cols, rows) as grid(2) => rows 0.
+	if _, err := Call(m, "grid", 2); err != nil {
+		t.Fatalf("grid with omitted rows: %v", err)
+	}
+	// Several trailing ints omitted at once: attach(parent, child, col, row)
+	// with both col and row left off defaults each to 0.
+	if _, err := Call(m, "attach", m.Grid(2, 2), m.Label("y")); err != nil {
+		t.Fatalf("attach with omitted col+row: %v", err)
+	}
+
 	// A leading-underscore name exercises camelize's empty-segment skip.
 	if _, err := Call(m, "_border"); err != nil {
 		t.Fatalf("_border: %v", err)
@@ -720,7 +741,11 @@ func TestCoerceAndHelpers(t *testing.T) {
 	if _, err := coerce(5, reflect.TypeOf([]any(nil))); err == nil {
 		t.Error("coerce int->slice should error")
 	}
-	// Map from a bad value -> error (nil path is covered via Call add).
+	// Map from nil -> zero (nil) map, no error; from a bad value -> error.
+	mp, err := coerce(nil, reflect.TypeOf(map[string]any(nil)))
+	if err != nil || !mp.IsNil() {
+		t.Errorf("coerce nil->map: %v %v", mp, err)
+	}
 	if _, err := coerce(5, reflect.TypeOf(map[string]any(nil))); err == nil {
 		t.Error("coerce int->map should error")
 	}
