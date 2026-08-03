@@ -105,6 +105,24 @@ func (m *Module) Button(label, callback string) int {
 // Label constructs a passive text label.
 func (m *Module) Label(text string) int { return m.reg(toolkit.NewLabel(text)) }
 
+// SetFontSize sets a Label's per-label pixel font size (a big clock face, a
+// heading): the label re-renders its text at px regardless of the theme's base
+// size. A non-positive px reverts to the theme default. It only takes effect on
+// a scalable TrueType/OpenType face (an unscalable bitmap font degrades
+// gracefully to the base size). A handle that is not a Label is an error.
+func (m *Module) SetFontSize(id, px int) error {
+	o, err := m.get(id)
+	if err != nil {
+		return err
+	}
+	l, ok := o.(*toolkit.Label)
+	if !ok {
+		return fmt.Errorf("widgets: SetFontSize: handle %d (%T) is not a label", id, o)
+	}
+	l.SetFontSize(px)
+	return nil
+}
+
 // Entry constructs a single-line text field seeded with initial. When callback
 // is non-empty it fires on every value change and on submit (Enter).
 func (m *Module) Entry(initial, callback string) int {
@@ -760,9 +778,24 @@ func (m *Module) Dispatch(id int, ev map[string]any) (map[string]any, error) {
 	if err != nil {
 		return nil, err
 	}
-	kind, err := parseEventKind(fmt.Sprint(ev["kind"]))
+	e, err := eventFromHash(ev)
 	if err != nil {
 		return nil, err
+	}
+	m.fired = nil
+	wdg.OnEvent(e)
+	return m.firedResult(), nil
+}
+
+// eventFromHash builds a toolkit.Event from a Ruby event Hash: a required "kind"
+// ("click"/"keydown"/"keyup"/"char"/"mousedrag"/"mouseup") plus optional "x",
+// "y", "code", "ctrl" and "shift". An unknown or missing kind is an error. It is
+// shared by Dispatch (which routes to OnEvent) and HandleKey (which routes to a
+// CommandPalette's key handler).
+func eventFromHash(ev map[string]any) (toolkit.Event, error) {
+	kind, err := parseEventKind(fmt.Sprint(ev["kind"]))
+	if err != nil {
+		return toolkit.Event{}, err
 	}
 	e := toolkit.Event{Kind: kind}
 	if v, ok := ev["x"]; ok {
@@ -780,13 +813,18 @@ func (m *Module) Dispatch(id int, ev map[string]any) (map[string]any, error) {
 	if v, ok := ev["shift"]; ok {
 		e.Shift = truthy(v)
 	}
-	m.fired = nil
-	wdg.OnEvent(e)
+	return e, nil
+}
+
+// firedResult drains the pending-callback list into the Ruby-shaped dispatch
+// result: {"fired" => [ids...], "repaint" => bool}. A host repaints when any
+// callback ran. Shared by Dispatch and HandleKey.
+func (m *Module) firedResult() map[string]any {
 	fired := make([]any, len(m.fired))
 	for i, f := range m.fired {
 		fired[i] = f
 	}
-	return map[string]any{"fired": fired, "repaint": len(m.fired) > 0}, nil
+	return map[string]any{"fired": fired, "repaint": len(m.fired) > 0}
 }
 
 // --- small parsers / coercions -----------------------------------------------

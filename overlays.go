@@ -49,6 +49,107 @@ func (m *Module) Toast(text, kind, actionLabel, action string) (int, error) {
 	return m.reg(t), nil
 }
 
+// SetToastIcon gives a Toast a leading icon. icon is either a stock glyph name
+// ("new"/"open"/"save"/"cut"/"copy"/"paste"/"undo"/"redo"/"search"/"settings"),
+// which paints a vector glyph, or RGBA pixel data (raw []byte or a base64
+// String) drawn as an image, in which case w and h are its positive source
+// dimensions and the buffer must hold at least w*h*4 bytes. Passing a known
+// glyph name clears any prior pixels (w and h are ignored); passing pixels
+// clears any prior glyph. A handle that is not a Toast, an unknown-glyph string
+// that is also not valid base64, a non-positive pixel size or a short buffer is
+// an error.
+func (m *Module) SetToastIcon(id int, icon any, w, h int) error {
+	o, err := m.get(id)
+	if err != nil {
+		return err
+	}
+	t, ok := o.(*toolkit.Toast)
+	if !ok {
+		return fmt.Errorf("widgets: SetToastIcon: handle %d (%T) is not a toast", id, o)
+	}
+	if name, isStr := icon.(string); isStr {
+		if fn, ok := iconGlyph(name); ok {
+			t.Icon = fn
+			t.Pixels, t.IW, t.IH = nil, 0, 0
+			return nil
+		}
+	}
+	b, err := toBytes(icon)
+	if err != nil {
+		return err
+	}
+	if w <= 0 || h <= 0 {
+		return fmt.Errorf("widgets: SetToastIcon: pixel size must be positive, got %dx%d", w, h)
+	}
+	if len(b) < w*h*4 {
+		return fmt.Errorf("widgets: SetToastIcon: got %d pixel bytes, need %d (w*h*4)", len(b), w*h*4)
+	}
+	t.Pixels, t.IW, t.IH = b, w, h
+	t.Icon = nil
+	return nil
+}
+
+// SetToastLines gives a Toast a multi-line body: the message is rendered as the
+// supplied rows (a bold-reading title line plus one or more body lines) stacked
+// top-to-bottom instead of the single Text. An empty array reverts to the
+// single-Text look. A handle that is not a Toast is an error.
+func (m *Module) SetToastLines(id int, lines []any) error {
+	o, err := m.get(id)
+	if err != nil {
+		return err
+	}
+	t, ok := o.(*toolkit.Toast)
+	if !ok {
+		return fmt.Errorf("widgets: SetToastLines: handle %d (%T) is not a toast", id, o)
+	}
+	if len(lines) == 0 {
+		t.Lines = nil
+		return nil
+	}
+	t.Lines = toStrings(lines)
+	return nil
+}
+
+// SetToastActions gives a Toast several action buttons, superseding the single
+// ActionLabel/Action pair: actions is a Ruby Array of Hashes, each with a
+// "label" (the button caption) and a "callback" (a callback identifier fired,
+// and reported by Dispatch, when that button is clicked). Non-Hash elements are
+// skipped, mirroring the Menu constructor. An empty array reverts to the single
+// action pair. A handle that is not a Toast is an error.
+func (m *Module) SetToastActions(id int, actions []any) error {
+	o, err := m.get(id)
+	if err != nil {
+		return err
+	}
+	t, ok := o.(*toolkit.Toast)
+	if !ok {
+		return fmt.Errorf("widgets: SetToastActions: handle %d (%T) is not a toast", id, o)
+	}
+	if len(actions) == 0 {
+		t.Actions = nil
+		return nil
+	}
+	acts := make([]toolkit.ToastAction, 0, len(actions))
+	for _, raw := range actions {
+		h, ok := raw.(map[string]any)
+		if !ok {
+			continue
+		}
+		a := toolkit.ToastAction{}
+		if v, ok := h["label"]; ok {
+			a.Label = fmt.Sprint(v)
+		}
+		if v, ok := h["callback"]; ok {
+			if cb := fmt.Sprint(v); cb != "" {
+				a.Callback = func() { m.fire(cb) }
+			}
+		}
+		acts = append(acts, a)
+	}
+	t.Actions = acts
+	return nil
+}
+
 // Badge constructs a small pill-shaped counter/indicator carrying text (the "12"
 // on an inbox icon). fill overrides the pill body colour and ink the text colour;
 // both are "#rrggbb"/"#rrggbbaa" hex, and an empty string selects the theme's
@@ -191,10 +292,211 @@ func (m *Module) Avatar(initials, color string) (int, error) {
 }
 
 // LevelBar constructs a discrete segmented indicator (battery / signal / VU
-// meter) of max equal cells; the first Value cells fill in Accent (set with
-// SetValue). max is floored at 1 by the toolkit.
-func (m *Module) LevelBar(max int) int {
-	return m.reg(toolkit.NewLevelBar(max))
+// meter) of max equal cells; the first Value cells fill (set with SetValue).
+// max is floored at 1 by the toolkit. label, when non-empty, is a caption
+// centred over the bar. thresholds is an optional Ruby Array of Hashes, each
+// with a "min" (an integer Value) and a "color_hex" ("#rrggbb"/"#rrggbbaa"),
+// recolouring the filled cells by value band: the band with the greatest "min"
+// not exceeding Value wins (e.g. red low, amber mid, green high). Non-Hash
+// elements are skipped, mirroring the Menu constructor; the empty/omitted array
+// keeps the Accent fill. A malformed "color_hex" is an error. label and
+// thresholds may be omitted for the original plain bar.
+func (m *Module) LevelBar(max int, label string, thresholds []any) (int, error) {
+	l := toolkit.NewLevelBar(max)
+	l.Label = label
+	ths, err := parseThresholds(thresholds)
+	if err != nil {
+		return 0, err
+	}
+	l.Thresholds = ths
+	return m.reg(l), nil
+}
+
+// Calendar constructs a month grid for the given year and month (1..12) with day
+// selected highlighted. A host drives the view with PrevMonth / NextMonth and
+// the selection with SetSelected, reads the selected day back with Selected, and
+// wires OnSelect / OnMonthChange. Out-of-range fields are clamped by the toolkit.
+func (m *Module) Calendar(year, month, selected int) int {
+	return m.reg(toolkit.NewCalendar(year, month, selected))
+}
+
+// PrevMonth steps a Calendar one month back (wrapping January to the previous
+// December), re-clamps the selected day and fires OnMonthChange. A handle that
+// is not a Calendar is an error.
+func (m *Module) PrevMonth(id int) error {
+	c, err := m.getCalendar("PrevMonth", id)
+	if err != nil {
+		return err
+	}
+	c.PrevMonth()
+	return nil
+}
+
+// NextMonth advances a Calendar one month (wrapping December to the next
+// January), re-clamps the selected day and fires OnMonthChange. A handle that is
+// not a Calendar is an error.
+func (m *Module) NextMonth(id int) error {
+	c, err := m.getCalendar("NextMonth", id)
+	if err != nil {
+		return err
+	}
+	c.NextMonth()
+	return nil
+}
+
+// OnSelect wires a Calendar's day-selection callback: clicking a day fires the
+// callback identifier (reported by Dispatch); the host then reads the chosen day
+// back with Selected. An empty callback clears the wiring. A handle that is not a
+// Calendar is an error.
+func (m *Module) OnSelect(id int, callback string) error {
+	c, err := m.getCalendar("OnSelect", id)
+	if err != nil {
+		return err
+	}
+	if callback == "" {
+		c.OnSelect = nil
+		return nil
+	}
+	c.OnSelect = func(int, int, int) { m.fire(callback) }
+	return nil
+}
+
+// OnMonthChange wires a Calendar's month-change callback: PrevMonth / NextMonth
+// (or a header-arrow click) fires the callback identifier (reported by Dispatch).
+// An empty callback clears the wiring. A handle that is not a Calendar is an
+// error.
+func (m *Module) OnMonthChange(id int, callback string) error {
+	c, err := m.getCalendar("OnMonthChange", id)
+	if err != nil {
+		return err
+	}
+	if callback == "" {
+		c.OnMonthChange = nil
+		return nil
+	}
+	c.OnMonthChange = func(int, int) { m.fire(callback) }
+	return nil
+}
+
+// --- command-palette accessors (host-drivable Spotlight) ---------------------
+
+// SetQuery replaces a CommandPalette's search text (seeding or overriding it
+// from a host), re-clamping the selection into the newly filtered list exactly
+// as typing would. A handle that is not a CommandPalette is an error.
+func (m *Module) SetQuery(id int, q string) error {
+	c, err := m.getPalette("SetQuery", id)
+	if err != nil {
+		return err
+	}
+	c.SetQuery(q)
+	return nil
+}
+
+// Query returns a CommandPalette's current search text. A handle that is not a
+// CommandPalette is an error.
+func (m *Module) Query(id int) (string, error) {
+	c, err := m.getPalette("Query", id)
+	if err != nil {
+		return "", err
+	}
+	return c.Query(), nil
+}
+
+// MoveSelection shifts a CommandPalette's selection by delta (negative up,
+// positive down) within the filtered list, clamped at both ends — the
+// ArrowUp/ArrowDown behaviour, host-driven. A handle that is not a
+// CommandPalette is an error.
+func (m *Module) MoveSelection(id, delta int) error {
+	c, err := m.getPalette("MoveSelection", id)
+	if err != nil {
+		return err
+	}
+	c.MoveSelection(delta)
+	return nil
+}
+
+// FilteredCommands returns a CommandPalette's currently visible commands, in
+// display order, as a Ruby Array of Hashes each carrying the command's "label" —
+// the exact list the result rows render, so a host can mirror the filtering
+// (e.g. show a live count) without duplicating the match logic. A handle that is
+// not a CommandPalette is an error.
+func (m *Module) FilteredCommands(id int) ([]any, error) {
+	c, err := m.getPalette("FilteredCommands", id)
+	if err != nil {
+		return nil, err
+	}
+	cmds := c.FilteredCommands()
+	out := make([]any, len(cmds))
+	for i, cmd := range cmds {
+		out[i] = map[string]any{"label": cmd.Label}
+	}
+	return out, nil
+}
+
+// HandleKey routes a host-supplied key event into a CommandPalette without going
+// through the widget tree: a typed character (kind "char") extends the query, and
+// a key press (kind "keydown") drives Backspace / ArrowUp / ArrowDown / Enter /
+// Escape (Enter fires the selected command's callback, reported in the result).
+// ev is the same event Hash Dispatch takes; the result is Dispatch-shaped
+// ({"fired" => [...], "repaint" => bool}). A handle that is not a CommandPalette,
+// or a malformed event Hash, is an error.
+func (m *Module) HandleKey(id int, ev map[string]any) (map[string]any, error) {
+	c, err := m.getPalette("HandleKey", id)
+	if err != nil {
+		return nil, err
+	}
+	e, err := eventFromHash(ev)
+	if err != nil {
+		return nil, err
+	}
+	m.fired = nil
+	c.HandleKey(e)
+	return m.firedResult(), nil
+}
+
+// Selected returns a widget's current selection index: a Calendar's selected day
+// or a CommandPalette's selected row (within its filtered list). A handle that is
+// neither is an error.
+func (m *Module) Selected(id int) (int, error) {
+	o, err := m.get(id)
+	if err != nil {
+		return 0, err
+	}
+	switch w := o.(type) {
+	case *toolkit.Calendar:
+		return w.Day, nil
+	case *toolkit.CommandPalette:
+		return w.Selected(), nil
+	default:
+		return 0, fmt.Errorf("widgets: Selected: handle %d (%T) has no selection index", id, o)
+	}
+}
+
+// getCalendar resolves a handle to a *toolkit.Calendar, naming who for the error.
+func (m *Module) getCalendar(who string, id int) (*toolkit.Calendar, error) {
+	o, err := m.get(id)
+	if err != nil {
+		return nil, err
+	}
+	c, ok := o.(*toolkit.Calendar)
+	if !ok {
+		return nil, fmt.Errorf("widgets: %s: handle %d (%T) is not a calendar", who, id, o)
+	}
+	return c, nil
+}
+
+// getPalette resolves a handle to a *toolkit.CommandPalette, naming who for the
+// error.
+func (m *Module) getPalette(who string, id int) (*toolkit.CommandPalette, error) {
+	o, err := m.get(id)
+	if err != nil {
+		return nil, err
+	}
+	c, ok := o.(*toolkit.CommandPalette)
+	if !ok {
+		return nil, fmt.Errorf("widgets: %s: handle %d (%T) is not a command palette", who, id, o)
+	}
+	return c, nil
 }
 
 // --- overlay state -----------------------------------------------------------
@@ -373,6 +675,65 @@ func (m *Module) SetValue(id, v int) error {
 }
 
 // --- small parsers / coercions -----------------------------------------------
+
+// iconGlyph maps a stock glyph name to its toolkit vector-icon drawer. The names
+// mirror the DrawIcon*** family. A name that is not a stock glyph returns false,
+// letting the caller fall back to treating the argument as pixel data.
+func iconGlyph(name string) (toolkit.IconFunc, bool) {
+	switch strings.ToLower(name) {
+	case "new":
+		return toolkit.DrawIconNew, true
+	case "open":
+		return toolkit.DrawIconOpen, true
+	case "save":
+		return toolkit.DrawIconSave, true
+	case "cut":
+		return toolkit.DrawIconCut, true
+	case "copy":
+		return toolkit.DrawIconCopy, true
+	case "paste":
+		return toolkit.DrawIconPaste, true
+	case "undo":
+		return toolkit.DrawIconUndo, true
+	case "redo":
+		return toolkit.DrawIconRedo, true
+	case "search":
+		return toolkit.DrawIconSearch, true
+	case "settings":
+		return toolkit.DrawIconSettings, true
+	default:
+		return nil, false
+	}
+}
+
+// parseThresholds converts a Ruby Array of {"min", "color_hex"} Hashes into
+// toolkit LevelThreshold bands. Non-Hash elements are skipped; an empty/nil array
+// yields a nil slice (the Accent fill). A malformed "color_hex" is an error.
+func parseThresholds(raw []any) ([]toolkit.LevelThreshold, error) {
+	if len(raw) == 0 {
+		return nil, nil
+	}
+	out := make([]toolkit.LevelThreshold, 0, len(raw))
+	for _, e := range raw {
+		h, ok := e.(map[string]any)
+		if !ok {
+			continue
+		}
+		th := toolkit.LevelThreshold{}
+		if v, ok := h["min"]; ok {
+			th.Min, _ = toInt(v)
+		}
+		if v, ok := h["color_hex"]; ok {
+			c, err := parseHexColor(fmt.Sprint(v))
+			if err != nil {
+				return nil, err
+			}
+			th.Color = c
+		}
+		out = append(out, th)
+	}
+	return out, nil
+}
 
 // parseToastKind maps a kind name to a toolkit.ToastKind ("" == info).
 func parseToastKind(name string) (toolkit.ToastKind, error) {
