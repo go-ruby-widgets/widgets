@@ -152,18 +152,35 @@ func (m *Module) Thumbnail(pixels any, w, h int, label, onClick string) (int, er
 	return m.reg(t), nil
 }
 
-// SetSelected sets the selected-border state of a Thumbnail (the Alt-Tab / Exposé
-// current choice). A handle that is not a Thumbnail is an error.
-func (m *Module) SetSelected(id int, v bool) error {
+// SetSelected sets a widget's selection state, dispatching on the handle's type:
+// a Thumbnail's selected-border flag (v is truthy — the Alt-Tab / Exposé current
+// choice), a CommandPalette's selection index (v is an integer, clamped into the
+// filtered list) or a Calendar's selected day (v is an integer day, re-clamped
+// into the current month). A handle that is none of these is an error, as is a
+// non-integer v where an index/day is expected.
+func (m *Module) SetSelected(id int, v any) error {
 	o, err := m.get(id)
 	if err != nil {
 		return err
 	}
-	t, ok := o.(*toolkit.Thumbnail)
-	if !ok {
-		return fmt.Errorf("widgets: SetSelected: handle %d (%T) is not a thumbnail", id, o)
+	switch w := o.(type) {
+	case *toolkit.Thumbnail:
+		w.Selected = truthy(v)
+	case *toolkit.CommandPalette:
+		n, ok := toInt(v)
+		if !ok {
+			return fmt.Errorf("widgets: SetSelected: index must be an integer, got %T", v)
+		}
+		w.SetSelected(n)
+	case *toolkit.Calendar:
+		n, ok := toInt(v)
+		if !ok {
+			return fmt.Errorf("widgets: SetSelected: day must be an integer, got %T", v)
+		}
+		w.SetDate(w.Year, w.Month, n)
+	default:
+		return fmt.Errorf("widgets: SetSelected: handle %d (%T) has no selection state", id, o)
 	}
-	t.Selected = v
 	return nil
 }
 

@@ -27,15 +27,21 @@
 //     TextView, CheckButton, DropDown, ListBox, Menu, MenuBar for leaves;
 //     Container (a config-driven fit/box/border/card layout), HBox, VBox, Grid,
 //     Frame, Dock and Border for containers; the overlay + chrome set a
-//     compositor needs — Notification, Toast, Badge, Image, ContextMenu,
-//     Popover, CommandPalette, IconButton, Tooltip, Avatar and LevelBar; and the
+//     compositor needs — Notification, Toast (with a leading icon, multi-line
+//     body and multi-action buttons), Badge, Image, ContextMenu, Popover,
+//     CommandPalette, IconButton, Tooltip, Avatar, LevelBar (with a caption and
+//     value-band Thresholds) and Calendar (a month grid); and the
 //     desktop-environment set — StatusArea / StatusIcon / StatusIconImage (the
 //     tray), Wallpaper / WallpaperGradient (the desktop backdrop) and Thumbnail
 //     (the Exposé / Alt-Tab / dock-peek window preview).
 //   - Mutators address a handle: SetText/Text, SetChecked/Checked, Select,
-//     SetStyle, SetSpacing, the package-wide SetTheme, the overlay state
-//     SetVisible/Visible, Popup, AnchorIn, SetLife, Tick, SetKind and SetValue,
-//     and the thumbnail state SetSelected and SetHover.
+//     SetFontSize (a Label's per-label pixel size), SetStyle, SetSpacing, the
+//     package-wide SetTheme, the overlay state SetVisible/Visible, Popup,
+//     AnchorIn, SetLife, Tick, SetKind, SetValue, the Toast refinements
+//     SetToastIcon/SetToastLines/SetToastActions, the Calendar controls
+//     PrevMonth/NextMonth/OnSelect/OnMonthChange, the command-palette accessors
+//     SetQuery/Query/MoveSelection/FilteredCommands/HandleKey, the shared
+//     Selected/SetSelected selection state, and the thumbnail state SetHover.
 //   - Composition wires the tree: AddWidget (which also joins a StatusIcon to a
 //     StatusArea and a Badge to a StatusIcon), Add (with a flex/size/region
 //     Hash), AddFixed, AddFlex, Attach (grid), DockAt, SetRegion (border),

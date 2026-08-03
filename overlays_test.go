@@ -77,10 +77,12 @@ func TestOverlayConstructors(t *testing.T) {
 	}
 
 	// LevelBar (max floored to 1 by the toolkit for a non-positive arg).
-	if id := m.LevelBar(4); id == 0 {
-		t.Fatal("LevelBar handle should be non-zero")
+	if id, err := m.LevelBar(4, "", nil); err != nil || id == 0 {
+		t.Fatalf("LevelBar handle should be non-zero: %d %v", id, err)
 	}
-	m.LevelBar(0)
+	if _, err := m.LevelBar(0, "", nil); err != nil {
+		t.Fatalf("LevelBar(0): %v", err)
+	}
 }
 
 func TestImageConstructor(t *testing.T) {
@@ -313,7 +315,7 @@ func TestLifeTickAndKind(t *testing.T) {
 
 func TestSetValue(t *testing.T) {
 	m := NewModule()
-	lb := m.LevelBar(5)
+	lb, _ := m.LevelBar(5, "", nil)
 	if err := m.SetValue(lb, 3); err != nil {
 		t.Fatalf("SetValue: %v", err)
 	}
