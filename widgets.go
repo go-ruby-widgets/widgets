@@ -835,10 +835,17 @@ var errorType = reflect.TypeOf((*error)(nil)).Elem()
 
 // Call dispatches a Ruby-style snake_case method name to the matching exported
 // method of the Module, coercing each Ruby-supplied argument to the Go
-// parameter type. Trailing arguments may be omitted (they default to nil/zero).
-// The result is the method's Ruby-shaped return value (or nil for a method that
-// returns nothing); a trailing error return is unwrapped into Call's own error.
-// This is the single entry point an rbgo binding drives from method_missing.
+// parameter type. Trailing arguments may be omitted: a genuinely-absent
+// position defaults to the parameter's zero value (int->0, bool->false,
+// string->"", slice/map->nil), so a Ruby caller writes Widgets.add(parent,
+// child) instead of spelling out the trailing 0 flex/size/region — the same
+// optional-trailing-args ergonomics Ruby itself offers. Only truly-omitted
+// positions are defaulted; a *supplied* argument always flows through the
+// coercion, so a wrong-type value (or too many arguments) still errors rather
+// than being silently absorbed. The result is the method's Ruby-shaped return
+// value (or nil for a method that returns nothing); a trailing error return is
+// unwrapped into Call's own error. This is the single entry point an rbgo
+// binding drives from method_missing.
 func Call(recv any, method string, args ...any) (any, error) {
 	rv := reflect.ValueOf(recv)
 	if !rv.IsValid() {
@@ -855,11 +862,17 @@ func Call(recv any, method string, args ...any) (any, error) {
 	}
 	in := make([]reflect.Value, ft.NumIn())
 	for i := 0; i < ft.NumIn(); i++ {
-		var arg any
-		if i < len(args) {
-			arg = args[i]
+		if i >= len(args) {
+			// A genuinely-absent trailing argument defaults to the parameter's
+			// zero value (int->0, bool->false, string->"", slice/map->nil),
+			// matching Ruby's optional-trailing-args ergonomics: a caller may
+			// leave off trailing scalars rather than pass an explicit 0/false.
+			// Only truly-omitted positions are filled; a *supplied* argument
+			// always flows through coerce, so a wrong-type value still errors.
+			in[i] = reflect.Zero(ft.In(i))
+			continue
 		}
-		v, err := coerce(arg, ft.In(i))
+		v, err := coerce(args[i], ft.In(i))
 		if err != nil {
 			return nil, fmt.Errorf("widgets: %s argument %d: %w", method, i+1, err)
 		}
