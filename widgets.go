@@ -460,7 +460,10 @@ func (m *Module) UseOpentypeTextSize(px int) error { return toolkit.UseOpenTypeT
 // --- composition -------------------------------------------------------------
 
 // AddWidget appends child to a Container, HBox or VBox with the default per-item
-// config (an equal share in a box, the centre of a border layout).
+// config (an equal share in a box, the centre of a border layout). It also
+// serves the tray add seam: a StatusIcon child appended to a StatusArea parent
+// joins the tray row, and a Badge child attached to a StatusIcon parent becomes
+// its corner overlay.
 func (m *Module) AddWidget(parent, child int) error {
 	p, err := m.get(parent)
 	if err != nil {
@@ -477,6 +480,18 @@ func (m *Module) AddWidget(parent, child int) error {
 		pc.Append(c)
 	case *toolkit.VBox:
 		pc.Append(c)
+	case *toolkit.StatusArea:
+		si, ok := c.(*toolkit.StatusIcon)
+		if !ok {
+			return fmt.Errorf("widgets: AddWidget: status area child %d (%T) is not a status icon", child, c)
+		}
+		pc.Add(si)
+	case *toolkit.StatusIcon:
+		b, ok := c.(*toolkit.Badge)
+		if !ok {
+			return fmt.Errorf("widgets: AddWidget: status icon child %d (%T) is not a badge", child, c)
+		}
+		pc.Badge = b
 	default:
 		return fmt.Errorf("widgets: AddWidget: handle %d (%T) is not a box/container", parent, p)
 	}

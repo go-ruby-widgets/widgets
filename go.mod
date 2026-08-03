@@ -3,8 +3,8 @@ module github.com/go-ruby-widgets/widgets
 go 1.26.4
 
 require (
-	github.com/go-widgets/painter v0.1.3
-	github.com/go-widgets/toolkit v0.77.0
+	github.com/go-widgets/painter v0.2.0
+	github.com/go-widgets/toolkit v0.80.0
 )
 
 require (
