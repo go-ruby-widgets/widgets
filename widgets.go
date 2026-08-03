@@ -263,7 +263,9 @@ func (m *Module) Border() int { return m.reg(toolkit.NewBorder()) }
 
 // --- mutation ----------------------------------------------------------------
 
-// SetText sets the text of a Label, Button, Entry, TextView or CheckButton.
+// SetText sets the text of a Label, Button, Entry, TextView or CheckButton, the
+// message of a Notification, Toast, Tooltip or Badge, an IconButton's glyph or an
+// Avatar's initials.
 func (m *Module) SetText(id int, s string) error {
 	o, err := m.get(id)
 	if err != nil {
@@ -281,13 +283,27 @@ func (m *Module) SetText(id int, s string) error {
 		w.SetText(s)
 	case *toolkit.CheckButton:
 		w.Label = s
+	case *toolkit.Notification:
+		w.Text = s
+	case *toolkit.Toast:
+		w.Text = s
+	case *toolkit.Tooltip:
+		w.Text = s
+	case *toolkit.Badge:
+		w.Text = s
+	case *toolkit.IconButton:
+		w.Icon = s
+	case *toolkit.Avatar:
+		w.Initials = s
 	default:
 		return fmt.Errorf("widgets: SetText: handle %d (%T) has no text", id, o)
 	}
 	return nil
 }
 
-// Text reads the text of a Label, Button, Entry, TextView or CheckButton.
+// Text reads the text of a Label, Button, Entry, TextView or CheckButton, the
+// message of a Notification, Toast, Tooltip or Badge, an IconButton's glyph or an
+// Avatar's initials.
 func (m *Module) Text(id int) (string, error) {
 	o, err := m.get(id)
 	if err != nil {
@@ -304,6 +320,18 @@ func (m *Module) Text(id int) (string, error) {
 		return w.Text(), nil
 	case *toolkit.CheckButton:
 		return w.Label, nil
+	case *toolkit.Notification:
+		return w.Text, nil
+	case *toolkit.Toast:
+		return w.Text, nil
+	case *toolkit.Tooltip:
+		return w.Text, nil
+	case *toolkit.Badge:
+		return w.Text, nil
+	case *toolkit.IconButton:
+		return w.Icon, nil
+	case *toolkit.Avatar:
+		return w.Initials, nil
 	default:
 		return "", fmt.Errorf("widgets: Text: handle %d (%T) has no text", id, o)
 	}

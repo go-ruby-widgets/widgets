@@ -26,9 +26,12 @@
 //   - Constructors return an opaque integer handle: Button, Label, Entry,
 //     TextView, CheckButton, DropDown, ListBox, Menu, MenuBar for leaves;
 //     Container (a config-driven fit/box/border/card layout), HBox, VBox, Grid,
-//     Frame, Dock and Border for containers.
+//     Frame, Dock and Border for containers; and the overlay + chrome set a
+//     compositor needs — Notification, Toast, Badge, Image, ContextMenu,
+//     Popover, CommandPalette, IconButton, Tooltip, Avatar and LevelBar.
 //   - Mutators address a handle: SetText/Text, SetChecked/Checked, Select,
-//     SetStyle, SetSpacing and the package-wide SetTheme.
+//     SetStyle, SetSpacing, the package-wide SetTheme, and the overlay state
+//     SetVisible/Visible, Popup, AnchorIn, SetLife, Tick, SetKind and SetValue.
 //   - Composition wires the tree: AddWidget, Add (with a flex/size/region
 //     Hash), AddFixed, AddFlex, Attach (grid), DockAt, SetRegion (border),
 //     AddMenu, SetActive (card) and SetLayout.
