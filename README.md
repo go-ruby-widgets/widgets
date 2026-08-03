@@ -35,12 +35,16 @@ six 64-bit Go architectures **and `js/wasm`** (the target [wasmdesk](https://git
 | Kind | Methods |
 | --- | --- |
 | Leaves | `button(label, cb)`, `label(text)`, `entry(initial, cb)`, `text_view(initial)`, `check_button(label, checked, cb)`, `drop_down(options, selected, cb)`, `list_box(items, cb)`, `menu(items)`, `menu_bar` |
-| Containers | `container(layout)` (`fit`/`box`/`hbox`/`vbox`/`border`/`card`), `h_box`, `v_box`, `grid(cols, rows)`, `frame(child)`, `dock(body)`, `border` |
+| Containers | `container(layout)` (`fit`/`box`/`hbox`/`vbox`/`border`/`card`), `h_box`, `v_box`, `grid(cols, rows)`, `frame(child)`, `dock(body)`, `border`, `backdrop(fill, grid, step)` |
+| Overlays & chrome | `notification(text)`, `toast(text, kind, action_label, action)`, `badge(text, fill, ink)`, `image(pixels, w, h, scale)`, `context_menu(menu)`, `popover(child, title)`, `command_palette(commands)`, `icon_button(icon, cb)`, `tooltip(text, placement)`, `avatar(initials, color)`, `level_bar(max)`, `decoration(...)` |
+| Desktop | `status_area`, `status_icon(icon, tooltip, on_click, on_right_click)`, `status_icon_image(pixels, w, h, tooltip, on_click, on_right_click)`, `wallpaper(pixels, w, h, mode)` (`fill`/`fit`/`center`/`tile`), `wallpaper_gradient(top_hex, bottom_hex)`, `thumbnail(pixels, w, h, label, on_click)` |
 
 ### Mutation
 
 `set_text` / `text`, `set_checked` / `checked`, `select(id, idx)`, `set_style`,
-`set_spacing`, and the module-wide `set_theme("light"|"dark")`.
+`set_spacing`, and the module-wide `set_theme("light"|"dark")`. Overlay state:
+`set_visible` / `visible`, `popup`, `anchor_in`, `set_life`, `tick`, `set_kind`,
+`set_value`. Thumbnail state: `set_selected(id, bool)`, `set_hover(id, bool)`.
 
 The module-wide `use_opentype_text` (and `use_opentype_text_size(px)`) upgrades
 the toolkit's active font from the built-in 5x7 bitmap to anti-aliased, shaped
@@ -50,7 +54,8 @@ decorations — repaints against the vector face.
 
 ### Composition
 
-`add_widget(parent, child)`, `add(parent, child, {flex:, size:, region:})`,
+`add_widget(parent, child)` (also joins a `status_icon` to a `status_area` and a
+`badge` to a `status_icon`), `add(parent, child, {flex:, size:, region:})`,
 `add_fixed`, `add_flex`, `attach(grid, child, col, row)`,
 `dock_at(dock, child, side, size)`,
 `set_region(border, child, region, size)`, `add_menu(bar, name, menu)`,
