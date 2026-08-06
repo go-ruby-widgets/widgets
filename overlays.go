@@ -150,6 +150,33 @@ func (m *Module) SetToastActions(id int, actions []any) error {
 	return nil
 }
 
+// ButtonRects reports the laid-out rectangle of each of a Toast's action buttons,
+// in the toast's local (painted) coordinate space, as a Ruby Array of Hashes each
+// carrying "x"/"y"/"w"/"h". The i-th rect is the click target for the i-th action
+// (the Actions set by SetToastActions, else the single legacy action button); an
+// action-less toast yields an empty Array. A host that renders the toast to a
+// pixel buffer and hit-tests clicks itself maps a click into the toast's local
+// space and finds the button whose rect contains it — routing the click to the
+// correct action instead of always the first. The rects reflect the toast's
+// CURRENT bounds, so size it first (Render, which lays the toast out to the pixel
+// buffer, or SetBounds). A handle that is not a Toast is an error.
+func (m *Module) ButtonRects(id int) ([]any, error) {
+	o, err := m.get(id)
+	if err != nil {
+		return nil, err
+	}
+	t, ok := o.(*toolkit.Toast)
+	if !ok {
+		return nil, fmt.Errorf("widgets: ButtonRects: handle %d (%T) is not a toast", id, o)
+	}
+	rects := t.ButtonRects()
+	out := make([]any, len(rects))
+	for i, r := range rects {
+		out[i] = map[string]any{"x": r.X, "y": r.Y, "w": r.W, "h": r.H}
+	}
+	return out, nil
+}
+
 // Badge constructs a small pill-shaped counter/indicator carrying text (the "12"
 // on an inbox icon). fill overrides the pill body colour and ink the text colour;
 // both are "#rrggbb"/"#rrggbbaa" hex, and an empty string selects the theme's
