@@ -140,6 +140,106 @@ func TestSetToastActions(t *testing.T) {
 	}
 }
 
+// --- Toast button rects (host-side per-button routing) ------------------------
+
+func TestButtonRects(t *testing.T) {
+	m := NewModule()
+	toast, _ := m.Toast("Deleted", "info", "", "")
+	if err := m.SetToastActions(toast, []any{
+		map[string]any{"label": "Undo", "callback": "on_undo"},
+		map[string]any{"label": "Dismiss", "callback": "on_dismiss"},
+	}); err != nil {
+		t.Fatalf("SetToastActions: %v", err)
+	}
+	if err := m.SetBounds(toast, 0, 0, 300, 44); err != nil {
+		t.Fatalf("SetBounds: %v", err)
+	}
+
+	got, err := m.ButtonRects(toast)
+	if err != nil {
+		t.Fatalf("ButtonRects: %v", err)
+	}
+	if len(got) != 2 {
+		t.Fatalf("want 2 button rects, got %d", len(got))
+	}
+
+	// The binding is byte-faithful to the toolkit geometry, exactly.
+	tk := m.objs[toast].(*toolkit.Toast)
+	want := tk.ButtonRects()
+	for i, g := range got {
+		h, ok := g.(map[string]any)
+		if !ok {
+			t.Fatalf("rect %d is not a Hash: %T", i, g)
+		}
+		if h["x"] != want[i].X || h["y"] != want[i].Y || h["w"] != want[i].W || h["h"] != want[i].H {
+			t.Fatalf("rect %d = %v, want %+v", i, h, want[i])
+		}
+		// Local-space contract: Y at the pill top, full pill height.
+		if h["y"].(int) != 0 || h["h"].(int) != 44 {
+			t.Fatalf("rect %d spans wrong vertical extent: %v", i, h)
+		}
+	}
+
+	// Edge-to-edge tiling + the last button flush with the pill's right edge (300).
+	r0, r1 := got[0].(map[string]any), got[1].(map[string]any)
+	if r1["x"].(int) != r0["x"].(int)+r0["w"].(int) {
+		t.Fatalf("buttons not contiguous: %v then %v", r0, r1)
+	}
+	if end := r1["x"].(int) + r1["w"].(int); end != 300 {
+		t.Fatalf("last button ends at %d, want 300", end)
+	}
+
+	// Routing: a click at each rect's CENTRE, dispatched through the same OnEvent
+	// seam a host would drive, fires exactly that button's callback (index-precise).
+	names := []string{"on_undo", "on_dismiss"}
+	for i, g := range got {
+		h := g.(map[string]any)
+		cx := h["x"].(int) + h["w"].(int)/2
+		cy := h["y"].(int) + h["h"].(int)/2
+		if err := m.SetVisible(toast, true); err != nil {
+			t.Fatalf("SetVisible: %v", err)
+		}
+		out, err := m.Dispatch(toast, map[string]any{"kind": "click", "x": cx, "y": cy})
+		if err != nil {
+			t.Fatalf("Dispatch button %d: %v", i, err)
+		}
+		fired := out["fired"].([]any)
+		if len(fired) != 1 || fired[0] != names[i] {
+			t.Fatalf("click centre of button %d fired %v, want [%s]", i, fired, names[i])
+		}
+	}
+
+	// An action-less toast yields an empty Array (not nil-crashing).
+	plain, _ := m.Toast("hi", "", "", "")
+	if err := m.SetBounds(plain, 0, 0, 120, 30); err != nil {
+		t.Fatalf("SetBounds plain: %v", err)
+	}
+	pr, err := m.ButtonRects(plain)
+	if err != nil {
+		t.Fatalf("ButtonRects plain: %v", err)
+	}
+	if len(pr) != 0 {
+		t.Fatalf("action-less toast rects = %v, want empty", pr)
+	}
+
+	// The snake_case dispatch name reaches the accessor.
+	cv, err := Call(m, "button_rects", toast)
+	if err != nil {
+		t.Fatalf("Call button_rects: %v", err)
+	}
+	if len(cv.([]any)) != 2 {
+		t.Fatalf("Call button_rects len = %d, want 2", len(cv.([]any)))
+	}
+
+	// Error paths: unknown handle + non-toast handle.
+	if _, err := m.ButtonRects(999); err == nil {
+		t.Error("ButtonRects: unknown handle should error")
+	}
+	if _, err := m.ButtonRects(m.Label("x")); err == nil {
+		t.Error("ButtonRects: non-toast should error")
+	}
+}
+
 // --- Label font size ----------------------------------------------------------
 
 func TestSetFontSize(t *testing.T) {
