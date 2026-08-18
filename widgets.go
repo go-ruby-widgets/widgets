@@ -155,7 +155,7 @@ func (m *Module) CheckButton(label string, checked bool, callback string) int {
 func (m *Module) DropDown(options []any, selected int, callback string) int {
 	d := toolkit.NewDropDown(toStrings(options), selected)
 	if callback != "" {
-		d.OnSelect = func(int) { m.fire(callback) }
+		d.Selected().Subscribe(func(int) { m.fire(callback) })
 	}
 	return m.reg(d)
 }
