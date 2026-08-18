@@ -177,7 +177,7 @@ func (m *Module) SetSelected(id int, v any) error {
 		if !ok {
 			return fmt.Errorf("widgets: SetSelected: day must be an integer, got %T", v)
 		}
-		w.SetDate(w.Year, w.Month, n)
+		w.SetDate(w.Year().Get(), w.Month().Get(), n)
 	default:
 		return fmt.Errorf("widgets: SetSelected: handle %d (%T) has no selection state", id, o)
 	}

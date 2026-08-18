@@ -265,7 +265,7 @@ func TestCalendarControls(t *testing.T) {
 	m := NewModule()
 	cal := m.Calendar(2026, 8, 3)
 	c := m.objs[cal].(*toolkit.Calendar)
-	if c.Year != 2026 || c.Month != 8 || c.Day != 3 {
+	if c.Year().Get() != 2026 || c.Month().Get() != 8 || c.Day().Get() != 3 {
 		t.Fatalf("Calendar ctor: %+v", c)
 	}
 
@@ -273,19 +273,33 @@ func TestCalendarControls(t *testing.T) {
 	if err := m.OnMonthChange(cal, "on_month"); err != nil {
 		t.Fatalf("OnMonthChange: %v", err)
 	}
+	// Direct Month() and Year() changes each fire (Prev/Next below moves only the
+	// Month, so a direct Year() Set covers the year subscriber). Restore afterwards.
+	m.fired = nil
+	c.Month().Set(12)
+	if len(m.fired) != 1 || m.fired[0] != "on_month" {
+		t.Errorf("month-set: fired=%v", m.fired)
+	}
+	m.fired = nil
+	c.Year().Set(2027)
+	if len(m.fired) != 1 || m.fired[0] != "on_month" {
+		t.Errorf("year-set: fired=%v", m.fired)
+	}
+	c.Year().Set(2026)
+	c.Month().Set(8)
 	m.fired = nil
 	if err := m.NextMonth(cal); err != nil {
 		t.Fatalf("NextMonth: %v", err)
 	}
-	if c.Month != 9 || len(m.fired) != 1 || m.fired[0] != "on_month" {
-		t.Errorf("NextMonth: month=%d fired=%v", c.Month, m.fired)
+	if c.Month().Get() != 9 || len(m.fired) != 1 || m.fired[0] != "on_month" {
+		t.Errorf("NextMonth: month=%d fired=%v", c.Month().Get(), m.fired)
 	}
 	m.fired = nil
 	if err := m.PrevMonth(cal); err != nil {
 		t.Fatalf("PrevMonth: %v", err)
 	}
-	if c.Month != 8 || len(m.fired) != 1 {
-		t.Errorf("PrevMonth: month=%d fired=%v", c.Month, m.fired)
+	if c.Month().Get() != 8 || len(m.fired) != 1 {
+		t.Errorf("PrevMonth: month=%d fired=%v", c.Month().Get(), m.fired)
 	}
 	// Clearing the wiring silences the callback.
 	if err := m.OnMonthChange(cal, ""); err != nil {
@@ -331,12 +345,14 @@ func TestCalendarControls(t *testing.T) {
 	if !fired {
 		t.Error("OnSelect never fired on any grid click")
 	}
-	// Clearing OnSelect.
+	// Clearing OnSelect detaches the subscription: a day change no longer fires.
 	if err := m.OnSelect(cal, ""); err != nil {
 		t.Fatalf("OnSelect clear: %v", err)
 	}
-	if c.OnSelect != nil {
-		t.Error("OnSelect not cleared")
+	m.fired = nil
+	c.Day().Set(c.Day().Get() + 1)
+	if len(m.fired) != 0 {
+		t.Errorf("OnSelect not cleared: fired=%v", m.fired)
 	}
 }
 

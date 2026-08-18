@@ -380,11 +380,16 @@ func (m *Module) OnSelect(id int, callback string) error {
 	if err != nil {
 		return err
 	}
+	key := fmt.Sprintf("calselect-%d", id)
+	if u := m.unsub[key]; u != nil {
+		u()
+		delete(m.unsub, key)
+	}
 	if callback == "" {
-		c.OnSelect = nil
 		return nil
 	}
-	c.OnSelect = func(int, int, int) { m.fire(callback) }
+	// The selected day is now the Calendar's Day() Observable; fire on its change.
+	m.unsub[key] = c.Day().Subscribe(func(int) { m.fire(callback) })
 	return nil
 }
 
@@ -397,11 +402,18 @@ func (m *Module) OnMonthChange(id int, callback string) error {
 	if err != nil {
 		return err
 	}
+	key := fmt.Sprintf("calmonth-%d", id)
+	if u := m.unsub[key]; u != nil {
+		u()
+		delete(m.unsub, key)
+	}
 	if callback == "" {
-		c.OnMonthChange = nil
 		return nil
 	}
-	c.OnMonthChange = func(int, int) { m.fire(callback) }
+	// Month navigation now changes the Year()/Month() Observables; fire on either.
+	uY := c.Year().Subscribe(func(int) { m.fire(callback) })
+	uM := c.Month().Subscribe(func(int) { m.fire(callback) })
+	m.unsub[key] = func() { uY(); uM() }
 	return nil
 }
 
@@ -491,7 +503,7 @@ func (m *Module) Selected(id int) (int, error) {
 	}
 	switch w := o.(type) {
 	case *toolkit.Calendar:
-		return w.Day, nil
+		return w.Day().Get(), nil
 	case *toolkit.CommandPalette:
 		return w.Selected(), nil
 	default:

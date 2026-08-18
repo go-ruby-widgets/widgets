@@ -49,13 +49,17 @@ type Module struct {
 	next  int
 	theme *toolkit.Theme
 	fired []string
+	// unsub holds the detach func for callbacks now backed by an mvvm.Observable
+	// subscription (e.g. a Calendar's OnSelect/OnMonthChange), keyed by
+	// "<kind>-<id>", so re-wiring or clearing a callback detaches the prior one.
+	unsub map[string]func()
 }
 
 // NewModule returns a fresh Module with an empty handle table and the default
 // light theme. Handles count up from 1, so a 0 handle always means "none"
 // (used by Frame/Dock to mean a nil child/body).
 func NewModule() *Module {
-	return &Module{objs: map[int]any{}, next: 1, theme: toolkit.DefaultLight()}
+	return &Module{objs: map[int]any{}, next: 1, theme: toolkit.DefaultLight(), unsub: map[string]func(){}}
 }
 
 // reg stores o under a fresh handle and returns it.
