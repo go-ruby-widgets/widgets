@@ -553,11 +553,11 @@ func (m *Module) SetVisible(id int, v bool) error {
 	case *toolkit.Notification:
 		w.Visible = v
 	case *toolkit.Toast:
-		w.Visible = v
+		w.Visible().Set(v)
 	case *toolkit.Popover:
 		w.Visible = v
 	case *toolkit.Tooltip:
-		w.Visible = v
+		w.Visible().Set(v)
 	case *toolkit.ContextMenu:
 		w.Open = v
 	case *toolkit.CommandPalette:
@@ -584,11 +584,11 @@ func (m *Module) Visible(id int) (bool, error) {
 	case *toolkit.Notification:
 		return w.Visible, nil
 	case *toolkit.Toast:
-		return w.Visible, nil
+		return w.Visible().Get(), nil
 	case *toolkit.Popover:
 		return w.Visible, nil
 	case *toolkit.Tooltip:
-		return w.Visible, nil
+		return w.Visible().Get(), nil
 	case *toolkit.ContextMenu:
 		return w.Open, nil
 	case *toolkit.CommandPalette:
@@ -652,7 +652,7 @@ func (m *Module) SetLife(id, n int) error {
 	case *toolkit.Notification:
 		w.Life = n
 	case *toolkit.Toast:
-		w.Life = n
+		w.Life().Set(n)
 	default:
 		return fmt.Errorf("widgets: SetLife: handle %d (%T) has no life budget", id, o)
 	}
