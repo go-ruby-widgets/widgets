@@ -144,7 +144,7 @@ func (m *Module) TextView(initial string) int {
 func (m *Module) CheckButton(label string, checked bool, callback string) int {
 	c := toolkit.NewCheckButton(label, checked)
 	if callback != "" {
-		c.OnToggle = func(bool) { m.fire(callback) }
+		c.Checked().Subscribe(func(bool) { m.fire(callback) })
 	}
 	return m.reg(c)
 }
@@ -365,7 +365,7 @@ func (m *Module) SetChecked(id int, v bool) error {
 	if !ok {
 		return fmt.Errorf("widgets: SetChecked: handle %d (%T) is not a check button", id, o)
 	}
-	c.Checked = v
+	c.Checked().Set(v)
 	return nil
 }
 
@@ -379,7 +379,7 @@ func (m *Module) Checked(id int) (bool, error) {
 	if !ok {
 		return false, fmt.Errorf("widgets: Checked: handle %d (%T) is not a check button", id, o)
 	}
-	return c.Checked, nil
+	return c.Checked().Get(), nil
 }
 
 // Select changes the selection of a DropDown (which also fires its callback) or
@@ -668,6 +668,72 @@ func (m *Module) AddMenu(bar int, name string, menu int) error {
 	}
 	mb.AddMenu(name, mn)
 	return nil
+}
+
+// getMenu looks up a handle as a *toolkit.Menu, mirroring the get + type-assert
+// AddMenu performs on its menu argument. A handle of 0 or an unknown id is
+// surfaced by get; a handle that resolves to another widget is a distinct error
+// naming op (the exported method) so the Ruby caller sees which call rejected it.
+func (m *Module) getMenu(op string, id int) (*toolkit.Menu, error) {
+	o, err := m.get(id)
+	if err != nil {
+		return nil, err
+	}
+	mn, ok := o.(*toolkit.Menu)
+	if !ok {
+		return nil, fmt.Errorf("widgets: %s: handle %d (%T) is not a menu", op, id, o)
+	}
+	return mn, nil
+}
+
+// MenuRowAt reports the index of the menu entry under the widget-local point
+// (x, y) — the SAME coordinate space Dispatch's "x"/"y" use — that a click there
+// would activate, or -1 when the point is outside the menu's bounds, over a
+// separator, or over a disabled (action-less, submenu-less) row. It is the exact
+// query a compositor that paints the menu via Render/Layout and routes its OWN
+// clicks needs, so it can ask "which row is under this point" instead of
+// mirroring the toolkit's row height, body inset, separator height and scroll
+// offset (which drift out of sync when those change). It delegates verbatim to
+// toolkit.Menu.RowAt, so the answer can never diverge from what a click through
+// Dispatch actually does.
+//
+// Contract: RowAt reads the menu's Bounds and scroll, so lay the handle out
+// first with layout(handle, w, h) (or set_bounds) — exactly as render/layout
+// already require. On an unlaid menu (zero bounds) every point is outside, so
+// the result is uniformly -1. A handle that is not a menu is an error.
+func (m *Module) MenuRowAt(id, x, y int) (int, error) {
+	mn, err := m.getMenu("MenuRowAt", id)
+	if err != nil {
+		return -1, err
+	}
+	return mn.RowAt(x, y), nil
+}
+
+// MenuRowTop returns the widget-local top Y of row i in the same coordinate
+// space MenuRowAt takes and Dispatch receives, with the current scroll offset
+// already applied (so it is negative for a row scrolled above the fold). It is
+// panic-free for any i (an i past the last row returns the body's bottom edge, a
+// negative i the top inset), delegating to toolkit.Menu.RowTop. Paired with
+// MenuRowHeight it gives a host the full row band without re-deriving the
+// metrics. A handle that is not a menu is an error.
+func (m *Module) MenuRowTop(id, i int) (int, error) {
+	mn, err := m.getMenu("MenuRowTop", id)
+	if err != nil {
+		return 0, err
+	}
+	return mn.RowTop(i), nil
+}
+
+// MenuRowHeight returns the pixel height of row i in the current scale and touch
+// density (a normal row's height, the separator height for a separator, or -1
+// when i is out of range), delegating to toolkit.Menu.RowHeight. A handle that
+// is not a menu is an error.
+func (m *Module) MenuRowHeight(id, i int) (int, error) {
+	mn, err := m.getMenu("MenuRowHeight", id)
+	if err != nil {
+		return -1, err
+	}
+	return mn.RowHeight(i), nil
 }
 
 // SetActive selects the visible child of a Container backed by a card layout.
