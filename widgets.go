@@ -393,7 +393,7 @@ func (m *Module) Select(id, idx int) error {
 	case *toolkit.DropDown:
 		w.Select(idx)
 	case *toolkit.ListBox:
-		w.Selected = idx
+		w.Selected().Set(idx)
 	default:
 		return fmt.Errorf("widgets: Select: handle %d (%T) is not selectable", id, o)
 	}
