@@ -132,7 +132,7 @@ func (m *Module) SetFontSize(id, px int) error {
 func (m *Module) Entry(initial, callback string) int {
 	e := toolkit.NewEntry(initial)
 	if callback != "" {
-		e.OnChange = func(string) { m.fire(callback) }
+		e.Text().Subscribe(func(string) { m.fire(callback) })
 		e.OnSubmit = func(string) { m.fire(callback) }
 	}
 	return m.reg(e)
@@ -299,8 +299,7 @@ func (m *Module) SetText(id int, s string) error {
 	case *toolkit.Button:
 		w.Label = s
 	case *toolkit.Entry:
-		w.Text = s
-		w.Cursor = len([]rune(s))
+		w.SetText(s)
 	case *toolkit.TextView:
 		w.SetText(s)
 	case *toolkit.CheckButton:
@@ -337,7 +336,7 @@ func (m *Module) Text(id int) (string, error) {
 	case *toolkit.Button:
 		return w.Label, nil
 	case *toolkit.Entry:
-		return w.Text, nil
+		return w.Text().Get(), nil
 	case *toolkit.TextView:
 		return w.Text(), nil
 	case *toolkit.CheckButton:
