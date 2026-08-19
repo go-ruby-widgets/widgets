@@ -338,7 +338,7 @@ func (m *Module) Text(id int) (string, error) {
 	case *toolkit.Entry:
 		return w.Text().Get(), nil
 	case *toolkit.TextView:
-		return w.Text(), nil
+		return w.Text().Get(), nil
 	case *toolkit.CheckButton:
 		return w.Label, nil
 	case *toolkit.Notification:
