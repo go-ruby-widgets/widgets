@@ -295,9 +295,9 @@ func (m *Module) SetText(id int, s string) error {
 	}
 	switch w := o.(type) {
 	case *toolkit.Label:
-		w.Text = s
+		w.Text().Set(s)
 	case *toolkit.Button:
-		w.Label = s
+		w.Label().Set(s)
 	case *toolkit.Entry:
 		w.SetText(s)
 	case *toolkit.TextView:
@@ -332,9 +332,9 @@ func (m *Module) Text(id int) (string, error) {
 	}
 	switch w := o.(type) {
 	case *toolkit.Label:
-		return w.Text, nil
+		return w.Text().Get(), nil
 	case *toolkit.Button:
-		return w.Label, nil
+		return w.Label().Get(), nil
 	case *toolkit.Entry:
 		return w.Text().Get(), nil
 	case *toolkit.TextView:
