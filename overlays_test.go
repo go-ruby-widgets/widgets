@@ -319,7 +319,7 @@ func TestSetValue(t *testing.T) {
 	if err := m.SetValue(lb, 3); err != nil {
 		t.Fatalf("SetValue: %v", err)
 	}
-	if m.objs[lb].(*toolkit.LevelBar).Value != 3 {
+	if m.objs[lb].(*toolkit.LevelBar).Value().Get() != 3 {
 		t.Error("SetValue did not stick")
 	}
 	if err := m.SetValue(999, 1); err == nil {
