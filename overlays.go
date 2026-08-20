@@ -559,7 +559,7 @@ func (m *Module) SetVisible(id int, v bool) error {
 	case *toolkit.Tooltip:
 		w.Visible().Set(v)
 	case *toolkit.ContextMenu:
-		w.Open = v
+		w.Open().Set(v)
 	case *toolkit.CommandPalette:
 		if v {
 			w.Open()
@@ -590,9 +590,9 @@ func (m *Module) Visible(id int) (bool, error) {
 	case *toolkit.Tooltip:
 		return w.Visible().Get(), nil
 	case *toolkit.ContextMenu:
-		return w.Open, nil
+		return w.Open().Get(), nil
 	case *toolkit.CommandPalette:
-		return w.Visible, nil
+		return w.Visible().Get(), nil
 	default:
 		return false, fmt.Errorf("widgets: Visible: handle %d (%T) is not a toggleable overlay", id, o)
 	}
