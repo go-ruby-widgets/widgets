@@ -551,11 +551,11 @@ func (m *Module) SetVisible(id int, v bool) error {
 	}
 	switch w := o.(type) {
 	case *toolkit.Notification:
-		w.Visible = v
+		w.Visible().Set(v)
 	case *toolkit.Toast:
 		w.Visible().Set(v)
 	case *toolkit.Popover:
-		w.Visible = v
+		w.Visible().Set(v)
 	case *toolkit.Tooltip:
 		w.Visible().Set(v)
 	case *toolkit.ContextMenu:
@@ -582,11 +582,11 @@ func (m *Module) Visible(id int) (bool, error) {
 	}
 	switch w := o.(type) {
 	case *toolkit.Notification:
-		return w.Visible, nil
+		return w.Visible().Get(), nil
 	case *toolkit.Toast:
 		return w.Visible().Get(), nil
 	case *toolkit.Popover:
-		return w.Visible, nil
+		return w.Visible().Get(), nil
 	case *toolkit.Tooltip:
 		return w.Visible().Get(), nil
 	case *toolkit.ContextMenu:
@@ -709,7 +709,7 @@ func (m *Module) SetValue(id, v int) error {
 	if !ok {
 		return fmt.Errorf("widgets: SetValue: handle %d (%T) is not a level bar", id, o)
 	}
-	l.Value = v
+	l.Value().Set(v)
 	return nil
 }
 

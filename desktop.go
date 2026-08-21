@@ -165,7 +165,7 @@ func (m *Module) SetSelected(id int, v any) error {
 	}
 	switch w := o.(type) {
 	case *toolkit.Thumbnail:
-		w.Selected = truthy(v)
+		w.Selected().Set(truthy(v))
 	case *toolkit.CommandPalette:
 		n, ok := toInt(v)
 		if !ok {
@@ -195,7 +195,7 @@ func (m *Module) SetHover(id int, v bool) error {
 	if !ok {
 		return fmt.Errorf("widgets: SetHover: handle %d (%T) is not a thumbnail", id, o)
 	}
-	t.Hover = v
+	t.Hover().Set(v)
 	return nil
 }
 
