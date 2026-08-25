@@ -2,7 +2,6 @@
 
 [![CI](https://github.com/go-ruby-widgets/widgets/actions/workflows/ci.yml/badge.svg)](https://github.com/go-ruby-widgets/widgets/actions/workflows/ci.yml)
 [![Go Reference](https://pkg.go.dev/badge/github.com/go-ruby-widgets/widgets.svg)](https://pkg.go.dev/github.com/go-ruby-widgets/widgets)
-[![Go Report Card](https://goreportcard.com/badge/github.com/go-ruby-widgets/widgets)](https://goreportcard.com/report/github.com/go-ruby-widgets/widgets)
 
 The pure-Go, Ruby-runtime-independent core of the Ruby **`widgets`** gem — a live
 widget UI toolkit (buttons, labels, text fields, lists, menus and the
