@@ -44,6 +44,8 @@ github.com/go-widgets/toolkit v0.235.0 h1:R95YNc6z5YLwkkg8xWVlfUMDTKdS5HnfXmAPEl
 github.com/go-widgets/toolkit v0.235.0/go.mod h1:KmLIi/12B6E/+wAA0xbGvQWmKMVSzvFv6Y7WwhEr29o=
 github.com/go-widgets/toolkit v0.248.0 h1:ueb/+0dd8wLjKwuKb20Xmo01pBD6GUP0xsc1EY4/fjA=
 github.com/go-widgets/toolkit v0.248.0/go.mod h1:eBfiAf9RI6uqmW6NoyFIBjNJgVmpjgVtVuJYS/8N5kI=
+github.com/go-widgets/toolkit v0.255.0 h1:yP3QuwTvqTCWwYAbNorxYEbJ6/zwB561POTTf/LmHTQ=
+github.com/go-widgets/toolkit v0.255.0/go.mod h1:eBfiAf9RI6uqmW6NoyFIBjNJgVmpjgVtVuJYS/8N5kI=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
