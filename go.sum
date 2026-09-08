@@ -90,6 +90,8 @@ github.com/go-widgets/toolkit v0.308.0 h1:pSuiug2nxvIOXlcWcs9tzb5SyNvPlS6nsdXWFJ
 github.com/go-widgets/toolkit v0.308.0/go.mod h1:tpn/Pcd+kra6UnIe8LPwaZWYQaCvvatYXrbuMJyoBfc=
 github.com/go-widgets/toolkit v0.314.0 h1:ZUHWJiRM1HocAwCYJkqrwSDakeHAHzUjXHdY6LmI+ek=
 github.com/go-widgets/toolkit v0.314.0/go.mod h1:Mucxvqm+K+VjG+Iu5i1RExez41H2Slbc99HYOcyc1sU=
+github.com/go-widgets/toolkit v0.316.0 h1:K/8npgr8qkQDtIcfcaYTxrPHAxNWIcwhU0RcwKPfY8I=
+github.com/go-widgets/toolkit v0.316.0/go.mod h1:Mucxvqm+K+VjG+Iu5i1RExez41H2Slbc99HYOcyc1sU=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
