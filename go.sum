@@ -8,6 +8,8 @@ github.com/andybalholm/brotli v1.2.3 h1:8H1qwOkl2LPfjf3YezB90JnCliZb6SInJ/OJkEbA
 github.com/andybalholm/brotli v1.2.3/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/andybalholm/brotli v1.2.4 h1:649LN6qF+/7JJYNN3Wdu4Dt5PS6eC/yP/Go3Bb0/AHI=
 github.com/andybalholm/brotli v1.2.4/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
+github.com/andybalholm/brotli v1.2.5 h1:BSI8V4zmx/3BAn6OKjF1PmfVq7Aoi52AdFsi6bpCx+s=
+github.com/andybalholm/brotli v1.2.5/go.mod h1:rzTDkvFWvIrjDXZHkuS16NPggd91W3kUSvPlQ1pLaKY=
 github.com/cespare/xxhash/v2 v2.3.0 h1:UL815xU9SqsFlibzuggzjXhog7bL6oX9BbNZnL2UFvs=
 github.com/cespare/xxhash/v2 v2.3.0/go.mod h1:VGX0DQ3Q6kWi7AoAeZDth3/j3BFtOZR5XLFGgcrjCOs=
 github.com/coder/websocket v1.8.15 h1:6B2JPeOGlpff2Uz6vOEH1Vzpi0iUz20A+lPVhPHtNUA=
@@ -30,6 +32,8 @@ github.com/go-crdt/collab v0.70.0 h1:RQ06Ed2QtMLh6lzCkLziRuN3HjghYrkFIgYBqQYkzFQ
 github.com/go-crdt/collab v0.70.0/go.mod h1:a1C6TAdb45K4B9/cOOzC0FN5vxEFSoGe1IBQQEJduCA=
 github.com/go-crdt/collab v0.71.0 h1:/TOaDmReaz7lrt6AylLPmFtpqvhANmCRWQGo1pguSNI=
 github.com/go-crdt/collab v0.71.0/go.mod h1:a1C6TAdb45K4B9/cOOzC0FN5vxEFSoGe1IBQQEJduCA=
+github.com/go-crdt/collab v0.74.0 h1:Q+fv5M57UOGzgse9khZEYNCDPxY2kH4CHhEXqSV/6qc=
+github.com/go-crdt/collab v0.74.0/go.mod h1:o1aOUE4PI5EfvNPzetDO/cgoGStcuCQueoPaFTf4LiU=
 github.com/go-crdt/crdt v0.31.0 h1:CTi+lo0bjsJv3F09CR/AdILQtWEWmzbDQ+S/6HNBOMU=
 github.com/go-crdt/crdt v0.31.0/go.mod h1:vbfvns9B9FUaMi2sPKzMYttKmbxfgO7EK3Yu82SrlYw=
 github.com/go-crdt/crdt v0.35.0 h1:8IGUNQo7+S9MfdTFX2miW2l+DxYClDyg+4qmYAmXpnY=
@@ -46,6 +50,8 @@ github.com/go-crdt/crdt v0.49.0 h1:5usO+6ugN8qNfuEDC9m7X5X0Msq097AO8oLgOQZ9bfQ=
 github.com/go-crdt/crdt v0.49.0/go.mod h1:vbfvns9B9FUaMi2sPKzMYttKmbxfgO7EK3Yu82SrlYw=
 github.com/go-crdt/crdt v0.51.0 h1:cux4901wTQ13vSvKTAMem3vjZ+vsm5gDaApKfvGyf9o=
 github.com/go-crdt/crdt v0.51.0/go.mod h1:vbfvns9B9FUaMi2sPKzMYttKmbxfgO7EK3Yu82SrlYw=
+github.com/go-crdt/crdt v0.55.0 h1:D/LHQ4OgSJRomMvEeYzRwwnP0hnXGngWevXglmpXIxI=
+github.com/go-crdt/crdt v0.55.0/go.mod h1:vbfvns9B9FUaMi2sPKzMYttKmbxfgO7EK3Yu82SrlYw=
 github.com/go-gfx/gfx v0.11.0 h1:IwdTO1i7veITSvEFBSjYAqiwzNm7CryDlkQgTt/NsKI=
 github.com/go-gfx/gfx v0.11.0/go.mod h1:bFt/MWyYWRU3Ic9IaB8XOC9KLMMHRRmahMk4FaIGK7g=
 github.com/go-gfx/gfx v0.19.0 h1:nA2Eg8Aq2kytR5Hrm/eQ6618w4vT0+Ao8BMZiuYh84c=
@@ -94,6 +100,8 @@ github.com/go-richdoc/richdoc v0.2.0 h1:z9cLox9MoInZL6fIlweMzgDT/VqgnB2ZucSIEaRF
 github.com/go-richdoc/richdoc v0.2.0/go.mod h1:aCX8ulqg5CoKqSWgWeEWul1Oj0d2VxQeaQNI0+jsm7c=
 github.com/go-richdoc/richdoc v0.3.0 h1:BPUHZ0NUrmDVffs2jJcj6ur8mqlccZpZVpCOsuQT9gQ=
 github.com/go-richdoc/richdoc v0.3.0/go.mod h1:aCX8ulqg5CoKqSWgWeEWul1Oj0d2VxQeaQNI0+jsm7c=
+github.com/go-richdoc/richdoc v0.4.0 h1:oLhMdRXRRZr3RW6Zqra3N6k5nOX6GFmvgyDpMKEBywM=
+github.com/go-richdoc/richdoc v0.4.0/go.mod h1:aCX8ulqg5CoKqSWgWeEWul1Oj0d2VxQeaQNI0+jsm7c=
 github.com/go-typeset/bidi v0.3.0 h1:4fjGjejvjE2LzLNzY4si8PkVO321NcsKIiANhWT3jF4=
 github.com/go-typeset/bidi v0.3.0/go.mod h1:ct3cmYT8Qt1FGJQ+2QaakrUxqaP4ZysgdQQg2ym5+Xo=
 github.com/go-widgets/mvvm v0.8.0 h1:DqyNiNNTdITkMOdAwGvWFuCd6xpTaDRS2S+LNxd8inA=
@@ -126,6 +134,8 @@ github.com/go-widgets/toolkit v0.321.0 h1:r8bGXiOqkRxEGQlI7sN1GZE1fhy/joMFMbLGiB
 github.com/go-widgets/toolkit v0.321.0/go.mod h1:tObzU60ZNdRXPKlYGsYg8vofh5Jaoqj+KfsI3PYN6sA=
 github.com/go-widgets/toolkit v0.321.1 h1:3XFjpkZoi+A3zCJnPmJFLkhO5lbwzd6Sdm6glHQRKkA=
 github.com/go-widgets/toolkit v0.321.1/go.mod h1:HA1o4LnAPybUc7FzIzH7zsbVlb3QIM9FRy3N7OLOI0k=
+github.com/go-widgets/toolkit v0.321.2 h1:l36f1g9rrxEy/4OgM82V/uNLQxB1hDNAU5nrc91okno=
+github.com/go-widgets/toolkit v0.321.2/go.mod h1:9nubMil78K/7phDy5hNMPFZn6z0bycqYchip020sFLs=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
 github.com/golang/protobuf v1.5.4/go.mod h1:lnTiLA8Wa4RWRcIUkrtSVa5nRhsEGBg48fD6rSs7xps=
 github.com/google/go-cmp v0.7.0 h1:wk8382ETsv4JYUZwIsn6YpYiWiBsYLSJiTsyBybVuN8=
