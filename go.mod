@@ -1,6 +1,6 @@
 module github.com/go-ruby-widgets/widgets
 
-go 1.26.4
+go 1.27.1
 
 require (
 	github.com/go-widgets/painter v0.13.0
@@ -9,7 +9,6 @@ require (
 
 require (
 	github.com/ajroetker/go-highway v0.0.4 // indirect
-	github.com/ajroetker/go-jpeg2000 v0.0.2 // indirect
 	github.com/andybalholm/brotli v1.2.5 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
 	github.com/go-crdt/collab v0.74.0 // indirect
