@@ -36,6 +36,8 @@ github.com/go-widgets/mvvm v0.9.0 h1:NwW/hAAsJUGlxmNt0ErQ7fUrud3w5Ys1RWm7hVugdJs
 github.com/go-widgets/mvvm v0.9.0/go.mod h1:1cUYVpDei59Ka7W3pMD1FWksBmBXfPnbPWHzBAJ/ebA=
 github.com/go-widgets/painter v0.13.0 h1:xBPbopFuYfeDVbQKUKviU6HnP2mAhztJ+BpasahlJLU=
 github.com/go-widgets/painter v0.13.0/go.mod h1:IPRLqdUJuJX8sfuHeYLZCzjoLvA0ApbOlyIAVmguJDQ=
+github.com/go-widgets/painter v0.15.0 h1:0oeaRDTPcIe5/b0wHtYbAUsnReoidkSapr8y+iZJwDk=
+github.com/go-widgets/painter v0.15.0/go.mod h1:FSLNdrtzfDF3md+vtaORyS4nrOKLW6eLaCT5BuO9EWg=
 github.com/go-widgets/toolkit v0.321.2 h1:l36f1g9rrxEy/4OgM82V/uNLQxB1hDNAU5nrc91okno=
 github.com/go-widgets/toolkit v0.321.2/go.mod h1:9nubMil78K/7phDy5hNMPFZn6z0bycqYchip020sFLs=
 github.com/golang/protobuf v1.5.4 h1:i7eJL8qZTpSEXOPTxNKhASYpMn+8e5Q6AdndVa1dWek=
