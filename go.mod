@@ -3,22 +3,22 @@ module github.com/go-ruby-widgets/widgets
 go 1.27.2
 
 require (
-	github.com/go-widgets/painter v0.15.0
+	github.com/go-widgets/painter v0.16.0
 	github.com/go-widgets/toolkit v0.326.0
 )
 
 require (
-	github.com/ajroetker/go-highway v0.0.4 // indirect
+	github.com/ajroetker/go-highway v0.0.12 // indirect
 	github.com/andybalholm/brotli v1.2.5 // indirect
 	github.com/coder/websocket v1.8.15 // indirect
 	github.com/go-crdt/collab v0.74.0 // indirect
 	github.com/go-crdt/crdt v0.55.0 // indirect
-	github.com/go-gfx/gfx v0.34.0 // indirect
+	github.com/go-gfx/gfx v0.35.0 // indirect
 	github.com/go-icons/iconoir v0.2.0 // indirect
 	github.com/go-images/gif v0.1.0 // indirect
 	github.com/go-images/images v0.0.0-20260927173152-87444e36aac4 // indirect
 	github.com/go-images/jpeg v0.2.0 // indirect
-	github.com/go-images/jpeg2000 v0.1.0 // indirect
+	github.com/go-images/jpeg2000 v0.13.3 // indirect
 	github.com/go-images/png v0.1.0 // indirect
 	github.com/go-opentype/fonts v0.10.0 // indirect
 	github.com/go-opentype/opentype v0.13.0 // indirect
