@@ -3,7 +3,7 @@ module github.com/go-ruby-widgets/widgets
 go 1.27.2
 
 require (
-	github.com/go-widgets/painter v0.17.0
+	github.com/go-widgets/painter v0.17.1
 	github.com/go-widgets/toolkit v0.345.2
 )
 
