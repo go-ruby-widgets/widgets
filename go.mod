@@ -4,7 +4,7 @@ go 1.27.2
 
 require (
 	github.com/go-widgets/painter v0.17.1
-	github.com/go-widgets/toolkit v0.345.2
+	github.com/go-widgets/toolkit v0.374.11
 )
 
 require (
@@ -28,6 +28,8 @@ require (
 	github.com/go-simd/highway v0.0.14 // indirect
 	github.com/go-typeset/bidi v0.3.1 // indirect
 	github.com/go-widgets/mvvm v0.15.0 // indirect
+	github.com/go-widgets/textinput v0.1.0 // indirect
+	github.com/go-widgets/vcs v0.1.0 // indirect
 	github.com/sergeymakinen/go-bmp v1.0.0 // indirect
 	github.com/sergeymakinen/go-ico v1.0.0 // indirect
 	github.com/tannevaled/gobig2 v0.2.0 // indirect
